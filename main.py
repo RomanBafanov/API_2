@@ -10,16 +10,8 @@ BODY = {}
 URL = 'https://api-ssl.bitly.com/v4/bitlinks'
 
 
-def shows_clicks(link, headers) -> Any:
-    try:
-        clicks = count_clicks(headers, link)
-    except requests.exceptions.HTTPError:
-        return None
-    else:
-        return clicks
-
-
-def count_clicks(headers, link) -> Any:
+def count_clicks(token, link) -> Any:
+    headers = {'Authorization': token}
     url = f'{URL}/{link}/clicks/summary'
     response = requests.get(url, headers=headers)
     response.raise_for_status()
@@ -27,49 +19,47 @@ def count_clicks(headers, link) -> Any:
     return response.json()['total_clicks']
 
 
-def cut_and_show(link, headers):
-    BODY['long_url'] = link
-    try:
-        bitlink = shorten_link(headers, URL, BODY)
-    except requests.exceptions.HTTPError:
-        return None
-    else:
-        return bitlink
-
-
-def shorten_link(headers, url, body) -> Any:
-    response = requests.post(url, headers=headers, json=body)
+def shorten_link(token, body) -> Any:
+    headers = {'Authorization': token}
+    response = requests.post(URL, headers=headers, json=body)
     response.raise_for_status()
 
     return response.json()['link']
 
 
-def is_bitlink(url):
-    parsed = urlparse(url)
-    if parsed.scheme == '':
-        return False
-    else:
+def is_bitlink(token, link) -> bool:
+    headers = {'Authorization': token}
+    response = requests.get(f'{URL}/{link}', headers=headers)
+    if response.raise_for_status():
         return True
-
-
-def main(headers) -> Any:
-    user_input = input('Введите ссылку ')
-    if is_bitlink(user_input):
-        bitlink = cut_and_show(user_input, headers)
-        if bitlink != None:
-            print('Битлинк', bitlink)
-        else:
-            print('Ошибка ввода!')
     else:
-        clicks = shows_clicks(user_input, headers)
-        if clicks != None:
-            print(f'По вашей ссылке прошли: {clicks} раз(а)')
+        return False
+
+
+def main() -> Any:
+    load_dotenv()
+    token = os.getenv('BITLINK_TOKEN')
+    user_input = input('Введите ссылку ')
+    parsed_url = urlparse(user_input)
+    print(parsed_url)
+    link = f'{parsed_url.netloc}{parsed_url.path}'
+    if is_bitlink(token, link):
+        print(link)
+        BODY['long_url'] = link
+        try:
+            bitlink = shorten_link(token, BODY)
+        except requests.exceptions.HTTPError:
+            print('Ошибка ввода при уменьшении!')
         else:
-            print('Ошибка ввода!')
+            print('Битлинк', bitlink)
+    else:
+        try:
+            clicks = count_clicks(token, link)
+        except requests.exceptions.HTTPError:
+            print('Ошибка ввода при поиске кликов!')
+        else:
+            print(f'По вашей ссылке прошли: {clicks} раз(а)')
 
 
 if __name__ == '__main__':
-    load_dotenv()
-    token = os.getenv('TOKEN')
-    headers = {'Authorization': token}
-    main(headers)
+    main()
