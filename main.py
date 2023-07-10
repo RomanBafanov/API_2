@@ -5,8 +5,6 @@ import os
 import requests
 
 
-BODY = {}
-
 URL = 'https://api-ssl.bitly.com/v4/bitlinks'
 
 
@@ -19,8 +17,9 @@ def count_clicks(token, link) -> Any:
     return response.json()['total_clicks']
 
 
-def shorten_link(token, body) -> Any:
+def shorten_link(token, user_input) -> Any:
     headers = {'Authorization': token}
+    body = {'long_url': user_input}
     response = requests.post(URL, headers=headers, json=body)
     response.raise_for_status()
 
@@ -30,35 +29,30 @@ def shorten_link(token, body) -> Any:
 def is_bitlink(token, link) -> bool:
     headers = {'Authorization': token}
     response = requests.get(f'{URL}/{link}', headers=headers)
-    if response.raise_for_status():
-        return True
-    else:
-        return False
+
+    return response.ok
 
 
 def main() -> Any:
     load_dotenv()
-    token = os.getenv('BITLINK_TOKEN')
+    token = os.getenv('BITLY_TOKEN')
     user_input = input('Введите ссылку ')
     parsed_url = urlparse(user_input)
-    print(parsed_url)
     link = f'{parsed_url.netloc}{parsed_url.path}'
     if is_bitlink(token, link):
-        print(link)
-        BODY['long_url'] = link
-        try:
-            bitlink = shorten_link(token, BODY)
-        except requests.exceptions.HTTPError:
-            print('Ошибка ввода при уменьшении!')
-        else:
-            print('Битлинк', bitlink)
-    else:
         try:
             clicks = count_clicks(token, link)
         except requests.exceptions.HTTPError:
             print('Ошибка ввода при поиске кликов!')
         else:
             print(f'По вашей ссылке прошли: {clicks} раз(а)')
+    else:
+        try:
+            bitlink = shorten_link(token, user_input)
+        except requests.exceptions.HTTPError:
+            print('Ошибка ввода при уменьшении!')
+        else:
+            print('Битлинк', bitlink)
 
 
 if __name__ == '__main__':
