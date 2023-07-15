@@ -3,7 +3,16 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 import os
 import requests
+import argparse
 
+
+parser = argparse.ArgumentParser(
+    description='Программа даёт возможность сократить ссылку и подсчитать колличество посещения короткой ссылки: '
+                'python main.py ваша ссылка'
+)
+parser.add_argument('link', help='Ваша ссылка')
+args = parser.parse_args()
+# print(args.name)
 
 URL = 'https://api-ssl.bitly.com/v4/bitlinks'
 
@@ -36,7 +45,7 @@ def is_bitlink(token, link) -> bool:
 def main() -> Any:
     load_dotenv()
     token = os.getenv('BITLY_TOKEN')
-    user_input = input('Введите ссылку ')
+    user_input = args.name
     parsed_url = urlparse(user_input)
     link = f'{parsed_url.netloc}{parsed_url.path}'
     if is_bitlink(token, link):
