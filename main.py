@@ -45,7 +45,7 @@ def is_bitlink(token, link) -> bool:
 def main() -> Any:
     load_dotenv()
     token = os.getenv('BITLY_TOKEN')
-    user_input = args.name
+    user_input = args.link
     parsed_url = urlparse(user_input)
     link = f'{parsed_url.netloc}{parsed_url.path}'
     if is_bitlink(token, link):
