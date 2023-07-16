@@ -6,14 +6,6 @@ import requests
 import argparse
 
 
-parser = argparse.ArgumentParser(
-    description='Программа даёт возможность сократить ссылку и подсчитать колличество посещения короткой ссылки: '
-                'python main.py ваша ссылка'
-)
-parser.add_argument('link', help='Ваша ссылка')
-args = parser.parse_args()
-# print(args.name)
-
 URL = 'https://api-ssl.bitly.com/v4/bitlinks'
 
 
@@ -43,6 +35,13 @@ def is_bitlink(token, link) -> bool:
 
 
 def main() -> Any:
+    parser = argparse.ArgumentParser(
+        description='Программа даёт возможность сократить ссылку и подсчитать колличество посещения короткой ссылки: '
+                    'python main.py ваша ссылка'
+    )
+    parser.add_argument('link', help='Ваша ссылка')
+    args = parser.parse_args()
+
     load_dotenv()
     token = os.getenv('BITLY_TOKEN')
     user_input = args.link
