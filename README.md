@@ -13,6 +13,30 @@ pip install -r requirements.txt
 ## Как пользоваться
 
 Для запуска программы запустите скрипт **main.py**. Далее введите ссылку для сокращения либо для подсчёта кликов по вашей короткой ссылке.
+Для работы в терминале используйте команду **python main.py ваша ссылка**.
+
+```bash
+$ python main.py https://www.rambler.ru/
+"Битлинк https://bit.ly/46tYjRQ"
+```
+
+```bash
+$ python main.py https://bit.ly/46tYjRQ
+"По вашей ссылке прошли: 1 раз(а)"
+```
+
+Если у вас возникли трудности наберите **python main.py -h**
+
+```bash
+python main.py -h
+Программа даёт возможность сократить ссылку и подсчитать колличество посещения короткой ссылки: python main.py ваша ссылка
+
+positional arguments:
+  link        Ваша ссылка
+
+options:
+  -h, --help  show this help message and exit
+```
 
 ## Цель проекта
 
